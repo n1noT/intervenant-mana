@@ -1,3 +1,10 @@
+Avancement :
+
+- 22/11/2024:
+    - Environnement de développement (Itération 0/1)
+    - Dashboard & sidenav (Itération 2)
+    - liste des intervenants, fetch des intervants de la BDD au front (Itération 3)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

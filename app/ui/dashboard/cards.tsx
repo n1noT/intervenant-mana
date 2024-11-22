@@ -1,4 +1,9 @@
-//import { BanknotesIcon, ClockIcon, UserGroupIcon, InboxIcon, } from '@heroicons/react/24/outline';
+import {
+  BanknotesIcon,
+  ClockIcon,
+  UserGroupIcon,
+  InboxIcon,
+} from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
 import { fetchCardData } from '@/app/lib/data';
 
@@ -15,6 +20,7 @@ export default async function CardWrapper() {
     numberOfCustomers,
     totalPaidInvoices,
     totalPendingInvoices,
+    biggestInvoice
   } = await fetchCardData();
   
   return (
@@ -28,6 +34,7 @@ export default async function CardWrapper() {
         value={numberOfCustomers}
         type="customers"
       /> 
+      <Card title="Biggest Invoice Paids" value={biggestInvoice} type="invoices" />
     </>
   );
 }
