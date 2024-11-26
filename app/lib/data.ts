@@ -4,10 +4,21 @@ import { formatCurrency } from './utils';
 import { db } from '@/app/lib/db';
 import { Intervenant } from '@/app/lib/definitions';
 
+const ITEMS_PER_PAGE = 5;
+
 export async function fetchIntervenants(): Promise<Intervenant[]> {
   try {
     const client = await db.connect();
-    const result = await client.query('SELECT * FROM intervenant');
+    const result = await client.query(`
+      SELECT intervenant.id,
+        intervenant.email,
+        intervenant.firstname,
+        intervenant.lastname,
+        intervenant.key,
+        intervenant.creationdate,
+        intervenant.enddate,
+        intervenant.availability 
+      FROM intervenant`);
     client.release();
     return result.rows as Intervenant[];
   } catch (error) {
@@ -20,8 +31,47 @@ export async function fetchIntervenantsPages(query: string): Promise<number> {
     const client = await db.connect();
     const result = await client.query('SELECT COUNT(*) FROM intervenant');
     client.release();
-    return Math.ceil(Number(result.rows[0].count) / 10);
+    return Math.ceil(Number(result.rows[0].count) / ITEMS_PER_PAGE);
   } catch (error) {
     throw new Error(`Failed to fetch intervenants pages: ${error}`);
+  }
+}
+
+export async function fetchFilteredIntervenants(
+  query: string,
+  currentPage: number,
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const client = await db.connect();
+    const queryText = `
+      SELECT
+        intervenant.id,
+        intervenant.email,
+        intervenant.firstname,
+        intervenant.lastname,
+        intervenant.key,
+        intervenant.creationdate,
+        intervenant.enddate,
+        intervenant.availability
+      FROM intervenant
+      WHERE
+        intervenant.firstname ILIKE $1 OR
+        intervenant.lastname ILIKE $1 OR
+        intervenant.email ILIKE $1 OR
+        intervenant.key ILIKE $1
+      ORDER BY intervenant.firstname ASC
+      LIMIT $2 OFFSET $3
+    `;
+    const queryValues = [`%${query}%`, ITEMS_PER_PAGE, offset];
+    const result = await client.query(queryText, queryValues);
+
+    client.release();
+    return result.rows as Intervenant[];
+
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch intervenants.');
   }
 }

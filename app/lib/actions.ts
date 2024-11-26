@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { db } from '@/app/lib/db';
 /*
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
@@ -51,12 +52,16 @@ export type State = {
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
  
-export async function createInvoice(prevState: State, formData: FormData) {
+export async function createIntervenants(prevState: State, formData: FormData) {
   // Validate form using Zod
   const validatedFields = CreateInvoice.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
+    email: formData.get('email'),
+    firstname: formData.get('firstname'),
+    lastname: formData.get('lastname'),
+    key: formData.get('key'),
+    creationdate: formData.get('creationdate'),
+    enddate: formData.get('enddate'),
+    availability: formData.get('availability'),
   });
  
   // If form validation fails, return errors early. Otherwise, continue.
@@ -74,10 +79,19 @@ export async function createInvoice(prevState: State, formData: FormData) {
  
   // Insert data into the database
   try {
-    await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
+    const client = await db.connect();
+    const result = await client.query(`
+      INSERT INTO intervenant(
+        intervenant.email,
+        intervenant.firstname,
+        intervenant.lastname,
+        intervenant.key,
+        intervenant.creationdate,
+        intervenant.enddate,
+        intervenant.availability
+      )
+      VALUES (${email}, ${firstname}, ${lastname}, ${key}, ${creationdate}, ${enddate}, ${availability})`);
+    client.release();
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {
@@ -85,9 +99,9 @@ export async function createInvoice(prevState: State, formData: FormData) {
     };
   }
  
-  // Revalidate the cache for the invoices page and redirect the user.
-  revalidatePath('/dashboard/invoices');
-  redirect('/dashboard/invoices');
+  // Revalidate the cache for the intervernants page and redirect the user.
+  revalidatePath('/dashboard/intervernants');
+  redirect('/dashboard/intervernants');
 }
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
@@ -102,7 +116,7 @@ export async function updateInvoice(id: string, formData: FormData) {
    
     try {
       await sql`
-          UPDATE invoices
+          UPDATE intervernant
           SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
           WHERE id = ${id}
         `;
@@ -110,16 +124,19 @@ export async function updateInvoice(id: string, formData: FormData) {
       return { message: 'Database Error: Failed to Update Invoice.' };
     }
    
-    revalidatePath('/dashboard/invoices');
-    redirect('/dashboard/invoices');
+    revalidatePath('/dashboard/intervernants');
+    redirect('/dashboard/intervernants');
 }
 
-export async function deleteInvoice(id: string) {
+
+export async function deleteIntervenant(id: string) {
     try {
-      await sql`DELETE FROM invoices WHERE id = ${id}`;
-      revalidatePath('/dashboard/invoices');
-      return { message: 'Deleted Invoice.' };
+    const client = await db.connect();
+    const result = await client.query(`DELETE FROM intervenant WHERE id = ${id}`)
+    client.release();
+    revalidatePath('/dashboard/intervenants');
+    return { message: 'Deleted intervenant.' };
     } catch (error) {
-      return { message: 'Database Error: Failed to Delete Invoice.' };
+      return { message: 'Database Error: Failed to Delete intervenant.' };
     }
 }
