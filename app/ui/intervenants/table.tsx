@@ -1,4 +1,4 @@
-import { UpdateIntervenant, DeleteIntervenant } from '@/app/ui/intervenants/buttons';
+import { UpdateIntervenant, DeleteIntervenant , GenerateIntervenantKey } from '@/app/ui/intervenants/buttons';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { fetchFilteredIntervenants } from '@/app/lib/data';
 
@@ -49,22 +49,19 @@ export default async function IntervenantsTable({
                   Email
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  First Name
+                  Prénom
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Last Name
+                  Nom
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Key
+                  Clé
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Creation Date
+                  Date de création
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  End Date
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Availability
+                  Date de fin
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
@@ -78,7 +75,9 @@ export default async function IntervenantsTable({
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    {intervenant.id}
+                    <div className={`flex rounded-full items-center justify-center w-6 h-6 `}>
+                      {intervenant.id}
+                    </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {intervenant.email}
@@ -95,16 +94,12 @@ export default async function IntervenantsTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(intervenant.creationdate)}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
+                  <td className={`whitespace-nowrap px-3 py-3 ${intervenant.enddate < new Date() ? "text-red-500 line-through" : "text-green-500 "}`}>
                     {formatDateToLocal(intervenant.enddate)}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                   {/* 
-                   {intervenant.availability}
-                   */}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
+                      <GenerateIntervenantKey id={intervenant.id} />
                       <UpdateIntervenant id={intervenant.id} />
                       <DeleteIntervenant id={intervenant.id} />
                     </div>

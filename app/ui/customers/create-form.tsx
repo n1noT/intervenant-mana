@@ -135,12 +135,12 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
-          href="/dashboard/invoices"
+          href="/dashboard/intervenants"
           className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
         >
-          Cancel
+          Annuler
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit">Ajouter</Button>
       </div>
     </form>
   );

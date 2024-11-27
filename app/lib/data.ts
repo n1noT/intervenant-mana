@@ -17,7 +17,6 @@ export async function fetchIntervenants(): Promise<Intervenant[]> {
         intervenant.key,
         intervenant.creationdate,
         intervenant.enddate,
-        intervenant.availability 
       FROM intervenant`);
     client.release();
     return result.rows as Intervenant[];
@@ -53,8 +52,7 @@ export async function fetchFilteredIntervenants(
         intervenant.lastname,
         intervenant.key,
         intervenant.creationdate,
-        intervenant.enddate,
-        intervenant.availability
+        intervenant.enddate
       FROM intervenant
       WHERE
         intervenant.firstname ILIKE $1 OR
@@ -73,5 +71,24 @@ export async function fetchFilteredIntervenants(
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch intervenants.');
+  }
+}
+
+export async function fetchIntervenantById (id: string) {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`
+      SELECT intervenant.id,
+        intervenant.email,
+        intervenant.firstname,
+        intervenant.lastname,
+        intervenant.key,
+        intervenant.enddate
+      FROM intervenant
+      WHERE intervenant.id = $1`, [id]);
+    client.release();
+    return result.rows[0] as Intervenant;
+  } catch (error) {
+    throw new Error(`Failed to fetch intervenant: ${error}`);
   }
 }
