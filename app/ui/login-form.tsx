@@ -9,7 +9,6 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
 import { useActionState } from 'react';
-/*
 import { authenticate } from '@/app/lib/actions';
  
 export default function LoginForm() {
@@ -17,6 +16,8 @@ export default function LoginForm() {
     authenticate,
     undefined,
   );
+
+  console.log('errorMessage:', errorMessage);
  
   return (
     <form action={formAction} className="space-y-3">
@@ -84,4 +85,3 @@ export default function LoginForm() {
     </form>
   );
 }
-  */

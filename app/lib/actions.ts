@@ -5,8 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { db } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
-
-/*
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
@@ -28,7 +26,7 @@ export async function authenticate(
     throw error;
   }
 }
- */
+
 const FormSchema = z.object({
   id: z.string(),
   email: z.string().email('Email invalide'),
