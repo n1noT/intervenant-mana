@@ -7,6 +7,7 @@ import { db } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import type { User } from '@/app/lib/definitions';
 
 export async function authenticate(
   prevState: string | undefined,
@@ -170,5 +171,17 @@ export async function generateIntervenantKey(id: string) {
   }
   catch (error) {
     return { message: 'Database Error: Failed to generate new key.' };
+  }
+}
+
+export async function getUser(email: string): Promise<User | undefined> {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`SELECT * FROM user WHERE email = $1`, [email]);
+    client.release();
+    return result.rows[0]<User>;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
   }
 }

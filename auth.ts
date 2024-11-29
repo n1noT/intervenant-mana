@@ -11,8 +11,7 @@ async function getUser(email: string): Promise<User | undefined> {
     const client = await db.connect();
     const result = await client.query(`SELECT * FROM user WHERE email = $1`, [email]);
     client.release();
-    console.log('User:', result.rows[0]);
-    return result.rows[0];
+    return result.rows[0]<User>;
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
@@ -27,7 +26,6 @@ export const { auth, signIn, signOut } = NextAuth({
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials);
- 
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
           const user = await getUser(email);
@@ -37,7 +35,6 @@ export const { auth, signIn, signOut } = NextAuth({
           if (passwordsMatch) return user;
         }
 
-        console.log('Invalid credentials');
         return null;
       },
     }),

@@ -9,15 +9,17 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
 import { useActionState } from 'react';
-import { authenticate } from '@/app/lib/actions';
- 
+import { authenticate, getUser } from '@/app/lib/actions';
+
 export default function LoginForm() {
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
     undefined,
   );
 
-  console.log('errorMessage:', errorMessage);
+  let user = getUser('nino.toutain@etu.unilim.fr');
+
+  console.log(user);
  
   return (
     <form action={formAction} className="space-y-3">
