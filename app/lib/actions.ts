@@ -162,8 +162,11 @@ export async function deleteIntervenant(id: string) {
 export async function generateIntervenantKey(id: string) {
   try {
     const key = uuidv4();
+    const creationdate = new Date().toISOString();
+    const enddate = new Date();
+    enddate.setMonth(enddate.getMonth() + 2);
     const client = await db.connect();
-    const result = await client.query(`UPDATE intervenant SET key = $1 WHERE id = $2`, [key, id]);
+    const result = await client.query(`UPDATE intervenant SET key = $1, creationdate = $2, enddate = $3 WHERE id = $4`, [key, creationdate, enddate, id]);
     client.release();
     revalidatePath('/dashboard/intervenants');
     return { message: 'Generated new key.' };
