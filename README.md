@@ -5,6 +5,9 @@ Avancement :
     - Dashboard & sidenav (Itération 2)
     - liste des intervenants, fetch des intervants de la BDD au front (Itération 3)
 
+- 29/11/2024 :
+    - Itération 4,5,6,7,8
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
