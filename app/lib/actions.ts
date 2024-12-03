@@ -200,3 +200,28 @@ export async function regenerateAllKeys() {
     return { message: 'Database Error: Failed to generate new keys for all intervenants.' };
   }
 }
+
+export async function findIntervenantByKey(key: string) {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`SELECT * FROM intervenant WHERE key = $1`, [key]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const intervenant = result.rows[0];
+
+      if (intervenant.enddate < new Date()) {
+        throw new Error('key expired.');
+      } else {
+        return intervenant;
+      }
+    } else {
+      throw new Error('Intervenant not found.');
+    }
+  } catch (error) {
+    if(error.message === 'key expired.') {
+      throw new Error('expired');
+    }
+    throw new Error('Database Error: Failed to find intervenant by key.');
+  }
+}
