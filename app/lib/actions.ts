@@ -7,6 +7,7 @@ import { db } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { inter } from '../ui/fonts';
 
 export async function authenticate(
   prevState: string | undefined,

@@ -92,3 +92,28 @@ export async function fetchIntervenantById (id: string) {
     throw new Error(`Failed to fetch intervenant: ${error}`);
   }
 }
+
+export async function fetchIntervenantByKey(key: string) {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`SELECT * FROM intervenant WHERE key = $1`, [key]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const intervenant = result.rows[0];
+
+      if (intervenant.enddate < new Date()) {
+        throw new Error('key expired.');
+      } else {
+        return intervenant;
+      }
+    } else {
+      throw new Error('Intervenant not found.');
+    }
+  } catch (error) {
+    if(error.message === 'key expired.') {
+      throw new Error('expired');
+    }
+    throw new Error('Database Error: Failed to find intervenant by key.');
+  }
+}
