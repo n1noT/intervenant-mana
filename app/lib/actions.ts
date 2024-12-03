@@ -175,3 +175,27 @@ export async function generateIntervenantKey(id: string) {
     return { message: 'Database Error: Failed to generate new key.' };
   }
 }
+
+export async function regenerateAllKeys() {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`SELECT id FROM intervenant`);
+    const intervenants = result.rows;
+
+    for (const intervenant of intervenants) {
+      const key = uuidv4();
+      const creationdate = new Date().toISOString();
+      const enddate = new Date();
+      enddate.setMonth(enddate.getMonth() + 2);
+
+      await client.query(`UPDATE intervenant SET key = $1, creationdate = $2, enddate = $3 WHERE id = $4`, [key, creationdate, enddate, intervenant.id]);
+    }
+
+    client.release();
+    revalidatePath('/dashboard/intervenants');
+    return { message: 'Generated new keys for all intervenants.' };
+  } catch (error) {
+    console.error('Database Error:', error);
+    return { message: 'Database Error: Failed to generate new keys for all intervenants.' };
+  }
+}

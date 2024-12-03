@@ -1,7 +1,7 @@
 import Pagination from '@/app/ui/intervenants/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/intervenants/table';
-import { CreateIntervenant } from '@/app/ui/intervenants/buttons';
+import { CreateIntervenant, RegenerateAllKeys } from '@/app/ui/intervenants/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
@@ -27,6 +27,7 @@ export default async function Page({
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Rechercher un intervenant..." />
+        <RegenerateAllKeys />
         <CreateIntervenant />
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>

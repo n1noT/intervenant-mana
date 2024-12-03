@@ -1,6 +1,6 @@
 import { PencilIcon, PlusIcon, TrashIcon, KeyIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { deleteIntervenant, generateIntervenantKey } from '@/app/lib/actions';
+import { deleteIntervenant, generateIntervenantKey, regenerateAllKeys } from '@/app/lib/actions';
 
 export function CreateIntervenant() {
   return (
@@ -44,6 +44,19 @@ export function GenerateIntervenantKey({ id }: { id: string }) {
   return (
     <form action={generateIntervenantKeyWithId}>
       <button className="rounded-md border p-2 hover:bg-gray-100">
+        <span className="sr-only">Key</span>
+        <KeyIcon className="w-5" />
+      </button>
+    </form>
+  );
+}
+
+export function RegenerateAllKeys() {
+  const generateAllIntervenantsKeys= regenerateAllKeys.bind(null);
+
+  return (
+    <form action={generateAllIntervenantsKeys}>
+      <button className="rounded-md border p-2 hover:bg-blue-300 bg-blue-200">
         <span className="sr-only">Key</span>
         <KeyIcon className="w-5" />
       </button>
