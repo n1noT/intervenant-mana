@@ -1,6 +1,8 @@
 Avancement :
 
-- 06/12/2024 : itération 11
+- 06/12/2024 : 
+itération 11 
+itération 12 non achevé
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
