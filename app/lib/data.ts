@@ -69,7 +69,6 @@ export async function fetchFilteredIntervenants(
     return result.rows as Intervenant[];
 
   } catch (error) {
-    console.error('Database Error:', error);
     throw new Error('Failed to fetch intervenants.');
   }
 }

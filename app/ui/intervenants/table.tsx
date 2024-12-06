@@ -1,6 +1,7 @@
 import { UpdateIntervenant, DeleteIntervenant , GenerateIntervenantKey } from '@/app/ui/intervenants/buttons';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { fetchFilteredIntervenants } from '@/app/lib/data';
+import Link from 'next/link';
 
 export default async function IntervenantsTable({
   query,
@@ -89,7 +90,7 @@ export default async function IntervenantsTable({
                     {intervenant.lastname}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {intervenant.key}
+                    <Link href={`/availability/${intervenant.key}`} className="hover:underline">{intervenant.key}</Link>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(intervenant.creationdate)}

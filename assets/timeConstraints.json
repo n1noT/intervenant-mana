@@ -1,36 +1,36 @@
 {
     "Intervenant 1": [{
         "days": "lundi, mardi, mercredi, jeudi, vendredi",
-        "from": "8:00",
+        "from": "08:00",
         "to": "19:30"
     }],
     "Intervenant 2": {
         "default": [{
             "days": "lundi, mardi, jeudi, vendredi",
-            "from": "8:30",
+            "from": "08:30",
             "to": "17:30"
         }, {
             "days": "mercredi",
-            "from": "8:30",
+            "from": "08:30",
             "to": "12:30"
         }]
     },
     "Intervenant 3": {
         "default": [{
             "days": "lundi, mardi, mercredi, jeudi, vendredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "19:30"
         }]
     },
     "Intervenant 4": {
         "default": [{
             "days": "lundi, mardi, mercredi, jeudi, vendredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "18:30"
         }],
-        "S38": [{
+        "38": [{
             "days": "lundi",
-            "from": "9:00",
+            "from": "09:00",
             "to": "11:30"
         }, {
             "days": "lundi",
@@ -38,25 +38,25 @@
             "to": "17:00"
         }, {
             "days": "mardi, mercredi, jeudi, vendredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "18:30"
         }],
-        "S40": [{
+        "40": [{
             "days": "lundi, mardi, mercredi, jeudi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "18:30"
         }, {
             "days": "vendredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "12:30"
         }],
-        "S41": [{
+        "41": [{
             "days": "lundi, mardi, vendredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "18:30"
         }, {
             "days": "mercredi",
-            "from": "8:00",
+            "from": "08:00",
             "to": "12:00"
         }]
     },

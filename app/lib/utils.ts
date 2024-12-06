@@ -23,6 +23,73 @@ export const formatDateToNumber = (dateStr: string) => {
   return new Date(dateStr).toISOString().split('T')[0];
 }
 
+export const getWeeksOfYear = (year: number) => {
+  const weeks = [];
+  let date = new Date(year, 0, 1);
+
+  // Get the first Monday of the year
+  while (date.getDay() !== 1) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  let weekNumber = 1;
+
+  // Loop through the year, week by week
+  while (date.getFullYear() === year) {
+    const startOfWeek = new Date(date);
+    date.setDate(date.getDate() + 6);
+    const endOfWeek = new Date(date);
+
+    weeks.push({
+        weekNumber,
+        startOfWeek: startOfWeek.toISOString().split('T')[0],
+        endOfWeek: endOfWeek.toISOString().split('T')[0],
+    });
+
+    date.setDate(date.getDate() + 1);
+    weekNumber++;
+  }
+
+  return weeks;
+};
+
+export const getDatesOfWeek = (year: number, weekNumber: number) => {
+  const firstDayOfYear = new Date(year, 0, 1);
+  let daysOffset = (weekNumber - 1) * 7;
+
+  // Adjust to the first Monday of the year
+  while (firstDayOfYear.getDay() !== 1) {
+    firstDayOfYear.setDate(firstDayOfYear.getDate() + 1);
+  }
+
+  // Calculate the start date of the specified week
+  const startDate = new Date(firstDayOfYear);
+  startDate.setDate(startDate.getDate() + daysOffset);
+
+  // Get all days of the week
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    weekDates.push(date.toISOString().split('T')[0]);
+  }
+
+  // Handle the case where the week spans two years
+  const lastDateOfWeek = new Date(startDate);
+  lastDateOfWeek.setDate(startDate.getDate() + 6);
+  if (lastDateOfWeek.getFullYear() !== year) {
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      if (date.getFullYear() !== year) {
+        weekDates[i] = date.toISOString().split('T')[0];
+      }
+    }
+  }
+
+  return weekDates;
+};
+
 export const generatePagination = (currentPage: number, totalPages: number) => {
   // If the total number of pages is 7 or less,
   // display all pages without any ellipsis.
