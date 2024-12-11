@@ -3,6 +3,7 @@
 import FullCalendar from "@fullcalendar/react";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import dayGridPlugin from '@fullcalendar/daygrid';
 import { useRef } from "react";
 import { getDatesOfWeek } from "../lib/utils";
 
@@ -13,14 +14,16 @@ import { getDatesOfWeek } from "../lib/utils";
 const Calendar = ({ availability }) => {
     const calendarRef = useRef(null);
     const year = [2024, 2025]
-    
+
     let events = [];
     // Ignore les vacances d'été et de Noël par défaut
     let ignoreWeeks = [27, 28, 29, 30, 31, 32, 33, 34, 35];
 
+
     const createEvents = (year: number, week: number, slot: { days: string[], from: string, to: string }): void => {
         const weekDates = getDatesOfWeek(year, week);
         const title = 'Disponibilité';
+
         if(slot.days.includes('lundi')) {
           events.push({
             title: title,
@@ -57,6 +60,7 @@ const Calendar = ({ availability }) => {
           });
       }
     };
+
     if (availability) {
       for (let field in availability) {
         let week = parseInt(field);
@@ -88,18 +92,25 @@ const Calendar = ({ availability }) => {
           }
         }
       }
+    };
 
-      
-    return (
-      <FullCalendar
-        innerRef={calendarRef}
-        plugins={[timeGridPlugin, interactionPlugin]}
-        editable
-        selectable
-        events={events}
-      />
-    );
-  };
+  return (
+    <FullCalendar
+    innerRef={calendarRef}
+    plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
+    initialView="timeGridWeek" // Vue par défaut : semaine
+    headerToolbar={{
+      start: 'prev,next today', // Boutons à gauche
+      center: 'title', // Titre au centre
+      end: 'dayGridMonth,timeGridWeek', // Vues disponibles à droite
+    }}
+    editable
+    selectable
+    events={events}
+    weekNumbers={true}
+    weekends={false}
+  />
+  );
 }
 
 export default Calendar;
