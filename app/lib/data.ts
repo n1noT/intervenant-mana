@@ -1,6 +1,6 @@
 "use server";
 
-import { formatCurrency } from './utils';
+import { formatHour, formatDay } from './utils';
 import { db } from '@/app/lib/db';
 import { Intervenant } from '@/app/lib/definitions';
 import moment from 'moment';
@@ -119,43 +119,6 @@ export async function fetchIntervenantByKey(key: string) {
   }
 }
 
-// Recupérer les heures au format HH:MM
-function formatHour (date: string) {
-  const hours = date.split('T')[1].split(':')[0] + ':' + date.split('T')[1].split(':')[1];
-
-  return hours;
-}
-
-// Recupérer le jour de la semaine en français
-function formatDay (date: string) {
-  const engDay = moment(date).tz('Europe/Paris').format('dddd');
-  let day = "";
-
-  if(engDay == "Monday"){
-    day = "lundi"
-  }
-  if(engDay == "Tuesday"){
-    day = "mardi"
-  } 
-  if(engDay == "Wednesday"){
-    day = "mercredi"
-  }
-  if(engDay == "Thursday"){
-    day = "jeudi"
-  }
-  if(engDay == "Friday"){
-    day = "vendredi"
-  }
-  if(engDay == "Saturday"){
-    day = "samedi"
-  }
-  if(engDay == "Sunday"){
-    day = "dimanche"
-  }
-
-  return day;
-}
-
 export async function setAvailability(id:int, events) {
   // Initialise le tableau de disponilbilités 
   const formatedEvents = [];
@@ -216,6 +179,8 @@ export async function setAvailability(id:int, events) {
       WHERE id = $2
     `, [json, id]);
     client.release();
+
+    return true;
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {

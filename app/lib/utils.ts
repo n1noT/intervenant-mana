@@ -1,4 +1,5 @@
 import moment from 'moment';
+import 'moment-timezone';
 
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
@@ -6,6 +7,43 @@ export const formatCurrency = (amount: number) => {
     currency: 'USD',
   });
 };
+
+// Recupérer les heures au format HH:MM, la fonction attend une date au format YYYY-MM-DDTHH:MM:SS
+export function formatHour (date: string) {
+  const hours = date.split('T')[1].split(':')[0] + ':' + date.split('T')[1].split(':')[1];
+
+  return hours;
+}
+
+// Recupérer le jour de la semaine en français, la fonction attend une date au format YYYY-MM-DDTHH:MM:SS
+export function formatDay (date: string) {
+  const engDay = moment(date).tz('Europe/Paris').format('dddd');
+  let day = "";
+
+  if(engDay == "Monday"){
+    day = "lundi"
+  }
+  if(engDay == "Tuesday"){
+    day = "mardi"
+  } 
+  if(engDay == "Wednesday"){
+    day = "mercredi"
+  }
+  if(engDay == "Thursday"){
+    day = "jeudi"
+  }
+  if(engDay == "Friday"){
+    day = "vendredi"
+  }
+  if(engDay == "Saturday"){
+    day = "samedi"
+  }
+  if(engDay == "Sunday"){
+    day = "dimanche"
+  }
+
+  return day;
+}
 
 export const formatDateToLocal = (
   dateStr: string,

@@ -6,8 +6,9 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import frLocale from '@fullcalendar/core/locales/fr'; // Importer la locale française
 import { useRef, useState, useEffect } from "react";
-import { getDatesOfWeek } from "../lib/utils";
+import { getDatesOfWeek, formatHour, formatDay } from "../lib/utils";
 import { setAvailability } from "@/lib/data";
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 /*
   Renvoyer tous les créneaux de disponibilité de l'intervenant en divisant par semaine
@@ -112,16 +113,14 @@ const Calendar = ({id , availability }) => {
     };
 
     const updatedEvents = [...events, newEvent];
-    setEvents(updatedEvents);
     
     try {
       const res = await setAvailability(id, updatedEvents);
       
-      if (res.ok) {
-        console.log('Availability updated');
+      if (!res) {
+        console.log('Availability not updated');
       } else {
-        console.log(res)
-        
+        setEvents(updatedEvents);
       }
     } catch (error) {
       console.error('Error updating availability:', error);
@@ -129,7 +128,32 @@ const Calendar = ({id , availability }) => {
 
     selectInfo.view.calendar.unselect(); // Désélectionner après l'ajout
   };
+
+  const handleEventClick = async (clickInfo) => {
+      clickInfo.event.remove();
+      const updatedEvents = events.filter(event => event.start !== clickInfo.event.startStr.split('+')[0]);
   
+      try {
+        const res = await setAvailability(id, updatedEvents);
+
+        if (!res) {
+          console.log('Availability not updated');
+        } else {
+          setEvents(updatedEvents);
+        }
+      } catch (error) {
+        console.error('Error updating availability:', error);
+      }
+  };
+
+  function eventContent({ event }) {
+    return (
+      <div className="flex justify-between p-1">
+        <p>{formatHour(event.startStr) + " - " + formatHour(event.endStr)}</p>
+        <button onClick={() => handleEventClick({ event })} className="bg-red-500 h-6 w-6 p-1 rounded-sm"> <TrashIcon/> </button>
+      </div>
+    );
+  }
 
   return (
     <FullCalendar
@@ -147,6 +171,7 @@ const Calendar = ({id , availability }) => {
       selectable
       events={events}
       select={handleDateSelect} // Gérer la sélection
+      eventContent={eventContent}
       weekNumbers={true}
       weekends={false}
     />
