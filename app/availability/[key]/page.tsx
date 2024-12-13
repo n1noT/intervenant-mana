@@ -52,7 +52,7 @@ export default function Page({ params }: { params: { key: string } }) {
     return (
         <div>
             <p>Bienvenue {intervenant.firstname} {intervenant.lastname}</p>
-            <Calendar availability={intervenant.availability}/>
+            <Calendar availability={intervenant.availability} id={intervenant.id}/>
         </div>
     );
 }
