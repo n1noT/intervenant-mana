@@ -146,6 +146,54 @@ const Calendar = ({id , availability }) => {
       }
   };
 
+  const handleEventResize = async (resizeInfo) => {
+    const updatedEvents = events.map(event =>
+      event.start === resizeInfo.event.startStr.split('+')[0] ? {
+        ...event,
+        start: resizeInfo.event.startStr,
+        end: resizeInfo.event.endStr
+      } : event
+    );
+
+    setEvents(updatedEvents);
+
+    try {
+      const res = await setAvailability(id, updatedEvents);
+
+      if (!res) {
+        console.log('Availability not updated');
+      } else {
+        console.log('Availability updated');
+      }
+    } catch (error) {
+      console.error('Error updating availability:', error);
+    }
+  };
+
+  const handleEventDrop = async (dropInfo) => {
+    const updatedEvents = events.map(event =>
+      event.start === dropInfo.oldEvent.startStr.split('+')[0] ? {
+        ...event,
+        start: dropInfo.event.startStr,
+        end: dropInfo.event.endStr
+      } : event
+    );
+
+    setEvents(updatedEvents);
+
+    try {
+      const res = await setAvailability(id, updatedEvents);
+
+      if (!res) {
+        console.log('Availability not updated');
+      } else {
+        console.log('Availability updated');
+      }
+    } catch (error) {
+      console.error('Error updating availability:', error);
+    }
+  };
+
   function eventContent({ event }) {
     return (
       <div className="flex justify-between p-1">
@@ -172,6 +220,8 @@ const Calendar = ({id , availability }) => {
       events={events}
       select={handleDateSelect} // Gérer la sélection
       eventContent={eventContent}
+      eventResize={handleEventResize}
+      eventDrop={handleEventDrop}
       weekNumbers={true}
       weekends={false}
     />
