@@ -119,25 +119,65 @@ export async function fetchIntervenantByKey(key: string) {
   }
 }
 
+export async function fetchAvailabilityById(id: string) {
+  try {
+    const client = await db.connect();
+    const result = await client.query(`SELECT intervenant.availability FROM intervenant WHERE intervenant.id = $1`, [id]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const intervenant = result.rows[0].availability;
+
+      if (intervenant.enddate < new Date()) {
+        throw new Error('key expired.');
+      } else {
+        return intervenant;
+      }
+    } else {
+      throw new Error('Intervenant not found.');
+    }
+  } catch (error) {
+    if(error.message === 'key expired.') {
+      throw new Error('expired');
+    }
+    throw new Error('Database Error: Failed to find intervenant by key.');
+  }
+}
+
 export async function setAvailability(id:int, events) {
   // Initialise le tableau de disponilbilités 
   const formatedEvents = [];
 
   // Formate les disponibilités pour simplifier le futur tri
   for(let event of events){
-    let formatedEvent = {
-      week: 0,
-      day: "",
-      from: "",
-      to: ""
+    if(event.title !== "Defaut") {
+      let formatedEvent = {
+        week: 0,
+        day: "",
+        from: "",
+        to: ""
+      }
+
+      formatedEvent.week = moment(event.start).week();
+      formatedEvent.day = formatDay(event.start);
+      formatedEvent.from = formatHour(event.start);
+      formatedEvent.to = formatHour(event.end);
+
+      formatedEvents.push(formatedEvent);
+    } else {
+      let formatedEvent = {
+        week: "default",
+        day: "",
+        from: "",
+        to: ""
+      }
+
+      formatedEvent.day = formatDay(event.start);
+      formatedEvent.from = formatHour(event.start);
+      formatedEvent.to = formatHour(event.end);
+
+      formatedEvents.push(formatedEvent);
     }
-
-    formatedEvent.week = moment(event.start).week();
-    formatedEvent.day = formatDay(event.start);
-    formatedEvent.from = formatHour(event.start);
-    formatedEvent.to = formatHour(event.end);
-
-    formatedEvents.push(formatedEvent);
   }
 
   // Initialise l'objet availability
@@ -158,7 +198,9 @@ export async function setAvailability(id:int, events) {
     // Si la semaine existe déjà, on vérifie si un créneau similaire mais avec un jour différent existe déjà exitste
     else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && !slot.days.includes(fe.day))) {
       availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to).days += `, ${fe.day}`;
-    } 
+    } else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && slot.days.includes(fe.day))) {
+      continue;
+    }
     // Sinon on ajoute le créneau à la semaine
     else {
       availability[fe.week].push({
@@ -189,3 +231,93 @@ export async function setAvailability(id:int, events) {
   }
 }
 
+export async function setDefaultAvailability(id:int, events) {
+  let availability = {};
+  // Insert availability into the database
+  try {
+    const client = await db.connect();
+    const previousAvailability = await client.query(`
+      SELECT availability FROM intervenant
+      WHERE id = $1
+    `, [id]);
+    client.release();
+
+    if (previousAvailability.rows.length !== 0 && previousAvailability.rows[0].availability !== null) {
+      availability = previousAvailability.rows[0].availability;
+    }
+  } catch (error) {
+    // If a database error occurs, return a more specific error.
+    return {
+      message: 'Database Error: Failed to Update Intervenant: ' + error,
+    };
+  }
+  // Initialise le tableau de disponilbilités 
+  const formatedEvents = [];
+
+  // Formate les disponibilités pour simplifier le futur tri
+  for(let event of events){
+    let formatedEvent = {
+      week: "default",
+      day: "",
+      from: "",
+      to: ""
+    }
+
+    formatedEvent.day = formatDay(event.start);
+    formatedEvent.from = formatHour(event.start);
+    formatedEvent.to = formatHour(event.end);
+
+    formatedEvents.push(formatedEvent);
+  }
+
+  if(availability["default"]){
+    availability["default"] = [];
+  }
+
+  // Trie les disponibilités par semaine dans les dispo formatés
+  for (let fe of formatedEvents) {
+    // Verifie si la semaine exsite déjà dans l'objet availability
+    if (!availability[fe.week]) {
+      availability[fe.week] = [];
+      // Ajoute le premier créneau
+      availability[fe.week].push({
+        days: fe.day,
+        from: fe.from,
+        to: fe.to
+      });
+    } 
+    // Si la semaine existe déjà, on vérifie si un créneau similaire mais avec un jour différent existe déjà exitste
+    else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && !slot.days.includes(fe.day))) {
+      availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to).days += `, ${fe.day}`;
+    } else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && slot.days.includes(fe.day))) {
+      continue;
+    }
+    // Sinon on ajoute le créneau à la semaine
+    else {
+      availability[fe.week].push({
+        days: fe.day,
+        from: fe.from,
+        to: fe.to
+      });
+    }
+  }
+  
+  // Insert availability into the database
+  try {
+    const json = JSON.stringify(availability);
+    const client = await db.connect();
+    const result = await client.query(`
+      UPDATE intervenant
+      SET availability = $1
+      WHERE id = $2
+    `, [json, id]);
+    client.release();
+
+    return true;
+  } catch (error) {
+    // If a database error occurs, return a more specific error.
+    return {
+      message: 'Database Error: Failed to Update Intervenant: ' + error,
+    };
+  }
+}

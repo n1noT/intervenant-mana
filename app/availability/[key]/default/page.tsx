@@ -2,10 +2,10 @@
 
 import { notFound } from 'next/navigation';
 import { fetchIntervenantByKey } from "@/app/lib/data";
-import Calendar from "@/app/ui/calendar";
+import DefaultCalendar from '@/app/ui/defaultCalendar';
 import { useEffect, useState } from "react";
 import Loader from '@/app/ui/loader';
-import  Link  from 'next/link';
+import Link  from 'next/link';
 import { Button } from '@/app/ui/button';
 
 export default function Page({ params }: { params: { key: string } }) {
@@ -54,10 +54,10 @@ export default function Page({ params }: { params: { key: string } }) {
     return (
         <div>
             <p>Bienvenue {intervenant.firstname} {intervenant.lastname}</p>
-            <Link href={`/availability/${intervenant.key}/default`}>
-                <Button>Par défaut</Button>
+            <Link href={`/availability/${intervenant.key}`}>
+                    <Button>Retour</Button>
             </Link>
-            <Calendar availability={intervenant.availability} id={intervenant.id}/>
+            <DefaultCalendar availability={intervenant.availability} id={intervenant.id}/>
         </div>
     );
 }

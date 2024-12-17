@@ -9,6 +9,7 @@ import { useRef, useState, useEffect } from "react";
 import { getDatesOfWeek, formatHour, formatDay } from "../lib/utils";
 import { setAvailability } from "@/lib/data";
 import { TrashIcon } from '@heroicons/react/24/outline';
+import uuid from 'react-uuid';
 
 /*
   Renvoyer tous les créneaux de disponibilité de l'intervenant en divisant par semaine
@@ -23,13 +24,19 @@ const Calendar = ({id , availability }) => {
     // Ignore les vacances d'été et de Noël par défaut
     let ignoreWeeks = [27, 28, 29, 30, 31, 32, 33, 34, 35, 52, 1];
 
-    const createEvents = (year: number, week: number, slot: { days: string[], from: string, to: string }): void => {
+    useEffect(() => {
+        console.log('Les events ont changé :', events);
+        // Force une logique qui utilise les nouveaux events (si besoin)
+    }, [events]);
+
+    const createEvents = (year: number, week: number, slot: { days: string[], from: string, to: string }, isDefault: bool): void => {
         const weekDates = getDatesOfWeek(year, week);
-        const title = 'Disponibilité';
+        const title = isDefault ? 'Defaut' : 'Disponibilité' ;
         const newEvents = [];
 
         if(slot.days.includes('lundi')) {
           newEvents.push({
+            id: uuid(),
             title: title,
             start: `${weekDates[1]}T${slot.from}:00`,
             end: `${weekDates[1]}T${slot.to}:00`
@@ -37,6 +44,7 @@ const Calendar = ({id , availability }) => {
         }
         if(slot.days.includes('mardi')) {
           newEvents.push({
+            id: uuid(),
             title: title,
             start: `${weekDates[2]}T${slot.from}:00`,
             end: `${weekDates[2]}T${slot.to}:00`
@@ -44,6 +52,7 @@ const Calendar = ({id , availability }) => {
         }
         if(slot.days.includes('mercredi')) {
           newEvents.push({
+            id: uuid(),
             title: title,
             start: `${weekDates[3]}T${slot.from}:00`,
             end: `${weekDates[3]}T${slot.to}:00`
@@ -51,6 +60,7 @@ const Calendar = ({id , availability }) => {
         }
         if(slot.days.includes('jeudi')) {
           newEvents.push({
+            id: uuid(),
             title: title,
             start: `${weekDates[4]}T${slot.from}:00`,
             end: `${weekDates[4]}T${slot.to}:00`
@@ -58,6 +68,7 @@ const Calendar = ({id , availability }) => {
         }
         if(slot.days.includes('vendredi')) {
           newEvents.push({
+            id: uuid(),
             title: title,
             start: `${weekDates[5]}T${slot.from}:00`,
             end: `${weekDates[5]}T${slot.to}:00`
@@ -75,10 +86,10 @@ const Calendar = ({id , availability }) => {
             processedWeeks.add(week);
             for (const slot of availability[field]) {
               if( 36 <= week && week <= 52){
-                createEvents(year[0], week, slot);
+                createEvents(year[0], week, slot, false);
               }
               else if (1 <= week && week <= 35){
-                createEvents(year[1], week, slot);
+                createEvents(year[1], week, slot, false);
               }
             }
             
@@ -92,10 +103,10 @@ const Calendar = ({id , availability }) => {
               if(!ignoreWeeks.includes(i) && !processedWeeks.has(i)){
                 processedWeeks.add(i);
                 if( 36 <= i && i <= 52){
-                  createEvents(year[0], i, slot);
+                  createEvents(year[0], i, slot, true);
                 }
                 else if (1 <= i && i <= 35){
-                  createEvents(year[1], i, slot);
+                  createEvents(year[1], i, slot, true);
                 }
               }
             }
@@ -107,12 +118,14 @@ const Calendar = ({id , availability }) => {
   // Gestion de la création d'un nouvel événement
   const handleDateSelect = async (selectInfo) => {
     const newEvent = {
+      id: uuid(),
       title: 'Disponibilité', // Titre de l'événement
       start: selectInfo.startStr, // Date de début
       end: selectInfo.endStr, // Date de fin
     };
 
     const updatedEvents = [...events, newEvent];
+    setEvents(updatedEvents);
     
     try {
       const res = await setAvailability(id, updatedEvents);
@@ -120,7 +133,6 @@ const Calendar = ({id , availability }) => {
       if (!res) {
         console.log('Availability not updated');
       } else {
-        setEvents(updatedEvents);
       }
     } catch (error) {
       console.error('Error updating availability:', error);
@@ -130,17 +142,15 @@ const Calendar = ({id , availability }) => {
   };
 
   const handleEventClick = async (clickInfo) => {
-      clickInfo.event.remove();
-      const updatedEvents = events.filter(event => event.start !== clickInfo.event.startStr.split('+')[0]);
+      const updatedEvents = events.filter(event => event.id !== clickInfo.event.id);
+      setEvents(updatedEvents);
   
       try {
         const res = await setAvailability(id, updatedEvents);
 
         if (!res) {
           console.log('Availability not updated');
-        } else {
-          setEvents(updatedEvents);
-        }
+        } 
       } catch (error) {
         console.error('Error updating availability:', error);
       }
@@ -148,7 +158,8 @@ const Calendar = ({id , availability }) => {
 
   const handleEventResize = async (resizeInfo) => {
     const updatedEvents = events.map(event =>
-      event.start === resizeInfo.event.startStr.split('+')[0] ? {
+      event.id === resizeInfo.event.id
+       ? {
         ...event,
         start: resizeInfo.event.startStr,
         end: resizeInfo.event.endStr
@@ -159,7 +170,7 @@ const Calendar = ({id , availability }) => {
 
     try {
       const res = await setAvailability(id, updatedEvents);
-
+      
       if (!res) {
         console.log('Availability not updated');
       } else {
@@ -172,7 +183,8 @@ const Calendar = ({id , availability }) => {
 
   const handleEventDrop = async (dropInfo) => {
     const updatedEvents = events.map(event =>
-      event.start === dropInfo.oldEvent.startStr.split('+')[0] ? {
+      event.id === dropInfo.event.id
+      ? {
         ...event,
         start: dropInfo.event.startStr,
         end: dropInfo.event.endStr
@@ -197,11 +209,16 @@ const Calendar = ({id , availability }) => {
   function eventContent({ event }) {
     return (
       <div className="flex justify-between p-1">
+        <p className="hidden">{event.title}</p>
         <p>{formatHour(event.startStr) + " - " + formatHour(event.endStr)}</p>
         <button onClick={() => handleEventClick({ event })} className="bg-red-500 h-6 w-6 p-1 rounded-sm"> <TrashIcon/> </button>
       </div>
     );
   }
+
+  useEffect(() => {
+      console.log("Events mis à jour :", events);
+  }, [events]);
 
   return (
     <FullCalendar
@@ -224,6 +241,7 @@ const Calendar = ({id , availability }) => {
       eventDrop={handleEventDrop}
       weekNumbers={true}
       weekends={false}
+      allDaySlot={false}
     />
   );
 }
