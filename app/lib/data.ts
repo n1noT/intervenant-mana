@@ -5,6 +5,7 @@ import { db } from '@/app/lib/db';
 import { Intervenant } from '@/app/lib/definitions';
 import moment from 'moment';
 import 'moment-timezone';
+import { Event, Availability } from '@/app/lib/definitions';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -27,7 +28,7 @@ export async function fetchIntervenants(): Promise<Intervenant[]> {
   }
 }
 
-export async function fetchIntervenantsPages(query: string): Promise<number> {
+export async function fetchIntervenantsPages(): Promise<number> {
   try {
     const client = await db.connect();
     const result = await client.query('SELECT COUNT(*) FROM intervenant');
@@ -71,6 +72,7 @@ export async function fetchFilteredIntervenants(
     return result.rows as Intervenant[];
 
   } catch (error) {
+    console.error('Failed to fetch intervenants:', error);
     throw new Error('Failed to fetch intervenants.');
   }
 }
@@ -112,7 +114,7 @@ export async function fetchIntervenantByKey(key: string) {
       throw new Error('Intervenant not found.');
     }
   } catch (error) {
-    if(error.message === 'key expired.') {
+    if (error instanceof Error && error.message === 'expired') {
       throw new Error('expired');
     }
     throw new Error('Database Error: Failed to find intervenant by key.');
@@ -137,21 +139,21 @@ export async function fetchAvailabilityById(id: string) {
       throw new Error('Intervenant not found.');
     }
   } catch (error) {
-    if(error.message === 'key expired.') {
+    if (error instanceof Error && error.message === 'expired') {
       throw new Error('expired');
     }
     throw new Error('Database Error: Failed to find intervenant by key.');
   }
 }
 
-export async function setAvailability(id:int, events) {
+export async function setAvailability(id: string, events: Event[]) {
   // Initialise le tableau de disponilbilités 
   const formatedEvents = [];
 
   // Formate les disponibilités pour simplifier le futur tri
-  for(let event of events){
-    if(event.title !== "Defaut") {
-      let formatedEvent = {
+  for (const event of events) {
+    if (event.title !== "Defaut") {
+      const formatedEvent = {
         week: 0,
         day: "",
         from: "",
@@ -165,7 +167,7 @@ export async function setAvailability(id:int, events) {
 
       formatedEvents.push(formatedEvent);
     } else {
-      let formatedEvent = {
+      const formatedEvent = {
         week: "default",
         day: "",
         from: "",
@@ -181,10 +183,10 @@ export async function setAvailability(id:int, events) {
   }
 
   // Initialise l'objet availability
-  const availability = {};
+  const availability: Availability = {};
 
   // Trie les disponibilités par semaine dans les dispo formatés
-  for (let fe of formatedEvents) {
+  for (const fe of formatedEvents) {
     // Verifie si la semaine exsite déjà dans l'objet availability
     if (!availability[fe.week]) {
       availability[fe.week] = [];
@@ -197,7 +199,10 @@ export async function setAvailability(id:int, events) {
     } 
     // Si la semaine existe déjà, on vérifie si un créneau similaire mais avec un jour différent existe déjà exitste
     else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && !slot.days.includes(fe.day))) {
-      availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to).days += `, ${fe.day}`;
+      const slot = availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to);
+      if (slot) {
+        slot.days += `, ${fe.day}`;
+      }
     } else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && slot.days.includes(fe.day))) {
       continue;
     }
@@ -215,7 +220,7 @@ export async function setAvailability(id:int, events) {
   try {
     const json = JSON.stringify(availability);
     const client = await db.connect();
-    const result = await client.query(`
+    await client.query(`
       UPDATE intervenant
       SET availability = $1
       WHERE id = $2
@@ -231,8 +236,8 @@ export async function setAvailability(id:int, events) {
   }
 }
 
-export async function setDefaultAvailability(id:int, events) {
-  let availability = {};
+export async function setDefaultAvailability(id: string, events: Event[]) {
+  let availability: Availability = {};
   // Insert availability into the database
   try {
     const client = await db.connect();
@@ -255,8 +260,8 @@ export async function setDefaultAvailability(id:int, events) {
   const formatedEvents = [];
 
   // Formate les disponibilités pour simplifier le futur tri
-  for(let event of events){
-    let formatedEvent = {
+  for (const event of events) {
+    const formatedEvent = {
       week: "default",
       day: "",
       from: "",
@@ -270,12 +275,12 @@ export async function setDefaultAvailability(id:int, events) {
     formatedEvents.push(formatedEvent);
   }
 
-  if(availability["default"]){
+  if (availability["default"]) {
     availability["default"] = [];
   }
 
   // Trie les disponibilités par semaine dans les dispo formatés
-  for (let fe of formatedEvents) {
+  for (const fe of formatedEvents) {
     // Verifie si la semaine exsite déjà dans l'objet availability
     if (!availability[fe.week]) {
       availability[fe.week] = [];
@@ -288,7 +293,10 @@ export async function setDefaultAvailability(id:int, events) {
     } 
     // Si la semaine existe déjà, on vérifie si un créneau similaire mais avec un jour différent existe déjà exitste
     else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && !slot.days.includes(fe.day))) {
-      availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to).days += `, ${fe.day}`;
+      const slot = availability[fe.week].find((slot) => slot.from === fe.from && slot.to === fe.to);
+      if (slot) {
+        slot.days += `, ${fe.day}`;
+      }
     } else if (availability[fe.week].some((slot) => slot.from === fe.from && slot.to === fe.to && slot.days.includes(fe.day))) {
       continue;
     }
@@ -306,7 +314,7 @@ export async function setDefaultAvailability(id:int, events) {
   try {
     const json = JSON.stringify(availability);
     const client = await db.connect();
-    const result = await client.query(`
+    await client.query(`
       UPDATE intervenant
       SET availability = $1
       WHERE id = $2

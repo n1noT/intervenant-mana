@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",    // Définit explicitement la base des chemins relatifs
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

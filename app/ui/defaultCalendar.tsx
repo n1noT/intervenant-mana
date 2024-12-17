@@ -1,31 +1,34 @@
 "use client";
 
 import FullCalendar from "@fullcalendar/react";
+import { EventResizeDoneArg, EventDragStopArg } from '@fullcalendar/interaction';
+import type { DateSelectArg } from '@fullcalendar/core';
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from '@fullcalendar/daygrid';
 import frLocale from '@fullcalendar/core/locales/fr'; // Importer la locale française
 import { useRef, useState, useEffect } from "react";
-import { getDatesOfWeek, formatHour, formatDay } from "../lib/utils";
-import { setDefaultAvailability } from "@/lib/data";
+import { getDatesOfWeek, formatHour } from "../lib/utils";
+import { setDefaultAvailability } from "@/app/lib/data";
 import { TrashIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import uuid from 'react-uuid';
+import { CalendarProps, CalendarEvent, CalendarEventResize } from "@/app/lib/definitions";
 
 /*
   Entrer les disponibilités par défaut
 */
 
-const DefaultCalendar = ({ id, availability }) => {
+const DefaultCalendar = ({ id, availability }: CalendarProps) => {
   const calendarRef = useRef(null);
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<{ id: string, title: string, start: string, end: string }[]>([]);
 
   const createEvents = (year: number, week: number, slot: { days: string[], from: string, to: string }): void => {
     const weekDates = getDatesOfWeek(year, week);
     const title = 'Defaut';
-    const newEvents = [];
+    const newEvents: { id: string, title: string, start: string, end: string }[] = [];
 
-    if (slot.days.includes('lundi')) {
+    if(slot.days.includes('lundi')) {
       newEvents.push({
         id: uuid(),
         title: title,
@@ -33,7 +36,7 @@ const DefaultCalendar = ({ id, availability }) => {
         end: `${weekDates[1]}T${slot.to}:00`
       });
     }
-    if (slot.days.includes('mardi')) {
+    if(slot.days.includes('mardi')) {
       newEvents.push({
         id: uuid(),
         title: title,
@@ -41,7 +44,7 @@ const DefaultCalendar = ({ id, availability }) => {
         end: `${weekDates[2]}T${slot.to}:00`
       });
     }
-    if (slot.days.includes('mercredi')) {
+    if(slot.days.includes('mercredi')) {
       newEvents.push({
         id: uuid(),
         title: title,
@@ -49,7 +52,7 @@ const DefaultCalendar = ({ id, availability }) => {
         end: `${weekDates[3]}T${slot.to}:00`
       });
     }
-    if (slot.days.includes('jeudi')) {
+    if(slot.days.includes('jeudi')) {
       newEvents.push({
         id: uuid(),
         title: title,
@@ -57,7 +60,7 @@ const DefaultCalendar = ({ id, availability }) => {
         end: `${weekDates[4]}T${slot.to}:00`
       });
     }
-    if (slot.days.includes('vendredi')) {
+    if(slot.days.includes('vendredi')) {
       newEvents.push({
         id: uuid(),
         title: title,
@@ -67,7 +70,7 @@ const DefaultCalendar = ({ id, availability }) => {
     }
 
     setEvents((prevEvents) => [...prevEvents, ...newEvents]);
-  };
+};
 
   useEffect(() => {
     if (availability) { // Vérification si les événements ont déjà été créés
@@ -80,7 +83,7 @@ const DefaultCalendar = ({ id, availability }) => {
   }, [availability]); 
 
   // Gestion de la création d'un nouvel événement
-  const handleDateSelect = async (selectInfo) => {
+  const handleDateSelect = async (selectInfo: DateSelectArg) => {
     const newEvent = {
       id: uuid(),
       title: 'Defaut', // Titre de l'événement
@@ -106,8 +109,7 @@ const DefaultCalendar = ({ id, availability }) => {
     selectInfo.view.calendar.unselect(); // Désélectionner après l'ajout
   };
 
-  const handleEventClick = async (clickInfo) => {
-    clickInfo.event.remove();
+  const handleEventClick = async (clickInfo: CalendarEventResize) => {
     const updatedEvents = events.filter(event => event.id !== clickInfo.event.id);
 
     try {
@@ -123,7 +125,7 @@ const DefaultCalendar = ({ id, availability }) => {
     }
   };
 
-  const handleEventResize = async (resizeInfo) => {
+  const handleEventResize = async (resizeInfo: EventResizeDoneArg) => {
     const updatedEvents = events.map(event =>
       event.id === resizeInfo.event.id ? {
         ...event,
@@ -147,7 +149,7 @@ const DefaultCalendar = ({ id, availability }) => {
     }
   };
 
-  const handleEventDrop = async (dropInfo) => {
+  const handleEventDrop = async (dropInfo: EventDragStopArg) => {
     const updatedEvents = events.map(event =>
       event.id === dropInfo.event.id ? {
         ...event,
@@ -171,7 +173,7 @@ const DefaultCalendar = ({ id, availability }) => {
     }
   };
 
-  function eventContent({ event }) {
+  function eventContent(event: CalendarEvent) {
     return (
       <div className="flex justify-between p-1">
         <p>{formatHour(event.startStr) + " - " + formatHour(event.endStr)}</p>
@@ -182,7 +184,7 @@ const DefaultCalendar = ({ id, availability }) => {
 
   return (
     <FullCalendar
-      innerRef={calendarRef}
+      ref={calendarRef}
       plugins={[timeGridPlugin, interactionPlugin, dayGridPlugin]}
       initialView="timeGridWeek" // Vue par défaut : semaine
       locales={[frLocale]} // Ajouter la locale française

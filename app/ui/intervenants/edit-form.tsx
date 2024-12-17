@@ -1,12 +1,6 @@
 'use client';
 
 import { IntervenantForm } from '@/app/lib/definitions';
-import {
-  CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { updateIntervenant, State } from '@/app/lib/actions';
@@ -18,7 +12,7 @@ export default function EditIntervenantForm({
 }: {
   intervenant: IntervenantForm;
 }) {
-  const initialState: State = { message: null, errors: {} };
+  const initialState: State = { message: '', errors: {} };
   const updateIntervenantWithId = updateIntervenant.bind(null, intervenant.id);
   const [state, formAction] = useActionState(updateIntervenantWithId, initialState);
 

@@ -1,6 +1,4 @@
-import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import { lusitana } from '@/app/ui/fonts';
-import { Suspense } from 'react';
  
 export default async function Page() {
   return (

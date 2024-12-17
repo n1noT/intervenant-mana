@@ -3,7 +3,7 @@ WORKDIR /app
 
 # Copier uniquement les fichiers de configuration pour installer les dépendances
 COPY package*.json ./
-RUN npm install
+RUN npm install --force
 
 # Copier le reste des fichiers
 COPY . .

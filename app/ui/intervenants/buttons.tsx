@@ -1,6 +1,7 @@
 import { PencilIcon, PlusIcon, TrashIcon, KeyIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { deleteIntervenant, generateIntervenantKey, regenerateAllKeys } from '@/app/lib/actions';
+import React from 'react';
 
 export function CreateIntervenant() {
   return (
@@ -26,11 +27,19 @@ export function UpdateIntervenant({ id }: { id: string }) {
 }
 
 export function DeleteIntervenant({ id }: { id: string }) {
-  const deleteIntervenantWithId = deleteIntervenant.bind(null, id);
+  const deleteIntervenantWithId = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const res = await deleteIntervenant(id);
+      console.log(res.message);
+    } catch (error) {
+      console.error('Error deleting intervenant:', error);
+    }
+  };
 
   return (
-    <form action={deleteIntervenantWithId}>
-      <button className="rounded-md border p-2 hover:bg-gray-100">
+    <form onSubmit={deleteIntervenantWithId}>
+      <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />
       </button>
@@ -39,11 +48,19 @@ export function DeleteIntervenant({ id }: { id: string }) {
 }
 
 export function GenerateIntervenantKey({ id }: { id: string }) {
-  const generateIntervenantKeyWithId = generateIntervenantKey.bind(null, id);
+  const generateIntervenantKeyWithId = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const res = await generateIntervenantKey(id);
+      console.log(res.message);
+    } catch (error) {
+      console.error('Error generating key:', error);
+    }
+  };
 
   return (
-    <form action={generateIntervenantKeyWithId}>
-      <button className="rounded-md border p-2 hover:bg-gray-100">
+    <form onSubmit={generateIntervenantKeyWithId}>
+      <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Key</span>
         <KeyIcon className="w-5" />
       </button>
@@ -52,11 +69,19 @@ export function GenerateIntervenantKey({ id }: { id: string }) {
 }
 
 export function RegenerateAllKeys() {
-  const generateAllIntervenantsKeys= regenerateAllKeys.bind(null);
+  const generateAllIntervenantsKeys = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const res = await regenerateAllKeys();
+      console.log(res.message);
+    } catch (error) {
+      console.error('Error regenerating keys:', error);
+    }
+  };
 
   return (
-    <form action={generateAllIntervenantsKeys}>
-      <button className="rounded-md border p-2 hover:bg-purple-300 bg-purple-200">
+    <form onSubmit={generateAllIntervenantsKeys}>
+      <button type="submit" className="rounded-md border p-2 hover:bg-purple-300 bg-purple-200">
         <span className="sr-only">Key</span>
         <KeyIcon className="w-5" />
       </button>

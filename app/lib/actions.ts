@@ -7,7 +7,6 @@ import { db } from '@/app/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
-import { inter } from '../ui/fonts';
 
 export async function authenticate(
   prevState: string | undefined,
@@ -42,12 +41,15 @@ export type State = {
     lastname?: string[];
     enddate?: string[];
   };
-  message?: string | null;
+  message: string;
 };
 
 const CreateIntervenant = FormSchema.omit({ id: true });
  
-export async function createIntervenant(prevState: State, formData: FormData) {
+export async function createIntervenant(
+  state: State,
+  formData: FormData
+): Promise<State> {
   // Validate form using Zod
   const validatedFields = CreateIntervenant.safeParse({
     email: formData.get('email'),
@@ -73,7 +75,7 @@ export async function createIntervenant(prevState: State, formData: FormData) {
   // Insert data into the database
   try {
     const client = await db.connect();
-    const result = await client.query(`
+    await client.query(`
       INSERT INTO intervenant(
         email,
         firstname,
@@ -130,7 +132,7 @@ export async function updateIntervenant(id: string, prevState: State, formData: 
   // Insert data into the database
   try {
     const client = await db.connect();
-    const result = await client.query(`
+    await client.query(`
       UPDATE intervenant
       SET email = $1, firstname = $2, lastname = $3, enddate = $4
       WHERE id = $5
@@ -147,17 +149,17 @@ export async function updateIntervenant(id: string, prevState: State, formData: 
   redirect('/dashboard/intervenants');
 }
 
-
 export async function deleteIntervenant(id: string) {
-    try {
+  try {
     const client = await db.connect();
-    const result = await client.query(`DELETE FROM intervenant WHERE id = ${id}`)
+    await client.query(`DELETE FROM intervenant WHERE id = ${id}`);
     client.release();
     revalidatePath('/dashboard/intervenants');
     return { message: 'Deleted intervenant.' };
-    } catch (error) {
-      return { message: 'Database Error: Failed to Delete intervenant.' };
-    }
+  } catch (error) {
+    console.error('Failed to fetch intervenants:', error);
+    return { message: 'Database Error: Failed to Delete intervenant.' };
+  }
 }
 
 export async function generateIntervenantKey(id: string) {
@@ -167,12 +169,12 @@ export async function generateIntervenantKey(id: string) {
     const enddate = new Date();
     enddate.setMonth(enddate.getMonth() + 2);
     const client = await db.connect();
-    const result = await client.query(`UPDATE intervenant SET key = $1, creationdate = $2, enddate = $3 WHERE id = $4`, [key, creationdate, enddate, id]);
+    await client.query(`UPDATE intervenant SET key = $1, creationdate = $2, enddate = $3 WHERE id = $4`, [key, creationdate, enddate, id]);
     client.release();
     revalidatePath('/dashboard/intervenants');
     return { message: 'Generated new key.' };
-  }
-  catch (error) {
+  } catch (error) {
+    console.error('Failed to fetch intervenants:', error);
     return { message: 'Database Error: Failed to generate new key.' };
   }
 }
@@ -218,8 +220,8 @@ export async function findIntervenantByKey(key: string) {
     } else {
       throw new Error('Intervenant not found.');
     }
-  } catch (error) {
-    if(error.message === 'key expired.') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'expired') { 
       throw new Error('expired');
     }
     throw new Error('Database Error: Failed to find intervenant by key.');

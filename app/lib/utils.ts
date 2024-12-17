@@ -63,7 +63,7 @@ export const formatDateToNumber = (dateStr: string) => {
   return new Date(dateStr).toISOString().split('T')[0];
 }
 
-export const getDatesOfWeek = (year: int, weekNumber: int) => {
+export const getDatesOfWeek = (year: number, weekNumber: number) => {
   // Calculer le premier jour de la semaine (dimanche)
   const startOfWeek = moment()
     .year(year)

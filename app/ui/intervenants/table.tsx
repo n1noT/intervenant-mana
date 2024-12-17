@@ -95,7 +95,7 @@ export default async function IntervenantsTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(intervenant.creationdate)}
                   </td>
-                  <td className={`whitespace-nowrap px-3 py-3 ${intervenant.enddate < new Date() ? "text-red-500 line-through" : "text-green-500 "}`}>
+                  <td className={`whitespace-nowrap px-3 py-3 ${new Date(intervenant.enddate) < new Date() ? "text-red-500 line-through" : "text-green-500 "}`}>
                     {formatDateToLocal(intervenant.enddate)}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">

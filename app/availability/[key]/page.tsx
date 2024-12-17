@@ -1,17 +1,18 @@
 "use client";
 
 import { notFound } from 'next/navigation';
-import { fetchIntervenantByKey } from "@/app/lib/data";
+import { fetchIntervenantByKey } from '../../lib/data';
 import Calendar from "@/app/ui/calendar";
 import { useEffect, useState } from "react";
 import Loader from '@/app/ui/loader';
 import  Link  from 'next/link';
 import { Button } from '@/app/ui/button';
+import { Intervenant } from '@/app/lib/definitions';
 
 export default function Page({ params }: { params: { key: string } }) {
     const { key } = params;
-    const [intervenant, setIntervenant] = useState(null);
-    const [error, setError] = useState(null);
+    const [intervenant, setIntervenant] = useState<Intervenant | null>(null);
+    const [error, setError] = useState("");
     const [notFoundAlert, setNotFoundAlert] = useState(false);
 
     useEffect(() => {
@@ -20,7 +21,7 @@ export default function Page({ params }: { params: { key: string } }) {
                 const data = await fetchIntervenantByKey(key);
                 setIntervenant(data);
             } catch (error) {
-                if (error.message === 'expired') {
+                if (error instanceof Error && error.message === 'expired') {
                     setError('The key is expired.');
                 } else {
                     setNotFoundAlert(true);
