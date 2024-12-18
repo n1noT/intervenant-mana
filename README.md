@@ -6,6 +6,7 @@ Avancement :
 
 ```bash
 docker compose up -d
+```
 
 ### Implement db user
 1. Go on pgadmin
