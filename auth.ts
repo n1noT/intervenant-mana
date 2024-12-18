@@ -14,7 +14,7 @@ async function getUser(email: string): Promise<User | undefined> {
         u.email,
         u.password
       FROM "user" u
-      WHERE u.email = $1`, [email]);
+      WHERE u.email = $1 LIMIT 1`, [email]);
     return result.rows[0];
   } catch (error) {
     throw new Error('Failed to fetch user.');

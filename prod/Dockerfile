@@ -1,5 +1,4 @@
-# Étape de build
-FROM node:20
+FROM node:18-alpine
 WORKDIR /app
 
 # Copier les fichiers importants
@@ -12,7 +11,6 @@ COPY . .
 # Vérification temporaire des fichiers copiés
 RUN ls -la /app
 RUN cat tsconfig.json
-RUN cat next-config.js
 
 RUN npm run build
 EXPOSE 3000

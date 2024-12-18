@@ -99,7 +99,6 @@ const DefaultCalendar = ({ id, availability }: CalendarProps) => {
       if (!res) {
         console.log(res);
       } else {
-        console.log(res);
         setEvents(updatedEvents);
       }
     } catch (error) {
@@ -173,7 +172,7 @@ const DefaultCalendar = ({ id, availability }: CalendarProps) => {
     }
   };
 
-  function eventContent(event: CalendarEvent) {
+  function eventContent({event}: { event: CalendarEvent }) {
     return (
       <div className="flex justify-between p-1">
         <p>{formatHour(event.startStr) + " - " + formatHour(event.endStr)}</p>

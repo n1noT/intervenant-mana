@@ -1,3 +1,5 @@
+"use client";
+
 import { PencilIcon, PlusIcon, TrashIcon, KeyIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { deleteIntervenant, generateIntervenantKey, regenerateAllKeys } from '@/app/lib/actions';

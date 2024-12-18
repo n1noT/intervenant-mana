@@ -11,17 +11,18 @@ services:
       - /app/node_modules # Évite les conflits avec node_modules de l'hôte
     environment:
       NODE_ENV: development
-      POSTGRES_USER: user@mail.com
-      POSTGRES_PASSWORD: password_app
-      POSTGRES_DB: intervenant_manager
+      POSTGRES_USER:  ${POSTGRES_USER_NEXT}
+      POSTGRES_PASSWORD:  ${POSTGRES_PASSWORD_NEXT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      AUTH_SECRET: ${AUTH_SECRET}
 
   db:
     image: postgres:17
     container_name: postgre_container
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: intervenant_manager
+      POSTGRES_USER:  ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - db-data:/var/lib/postgresql/data
 

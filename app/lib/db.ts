@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
 
 export const db = new Pool({
-  user: 'user',
+  user: process.env.POSTGRES_USER_NEXT,
   host: 'db',
-  database: 'intervenant_manager' ,
-  password:'password',
+  database: process.env.POSTGRES_DB ,
+  password: process.env.POSTGRES_PASSWORD_NEXT ,
   port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
 });

@@ -208,7 +208,7 @@ const Calendar = ({id , availability }: CalendarProps) => {
     }
   };
 
-  function eventContent(event: CalendarEvent) {
+  function eventContent({event}: { event: CalendarEvent }) {
     return (
       <div className="flex justify-between p-1">
         <p className="hidden">{event.title}</p>
