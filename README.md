@@ -11,7 +11,6 @@ Set AUTH_SECRET with the result.
 
 ```bash
 AUTH_SECRET=
-AUTH_URL=http://localhost:3000
 
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
@@ -22,6 +21,10 @@ POSTGRES_PASSWORD_NEXT=password_app
 
 PGADMIN_DEFAULT_EMAIL=admin@example.com
 PGADMIN_DEFAULT_PASSWORD=admin
+
+### For prod
+NEXTAUTH_URL=http://localhost:3000
+AUTH_TRUST_HOST=1
 ```
 
 ### Start
